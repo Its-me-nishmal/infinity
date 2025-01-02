@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infinite Scroll Webpage</title>
+    <style>
+        /* Reset default margin and padding */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden; /* Hide default scrollbars */
+            cursor: grab; /* Indicate draggable area */
+            user-select: none; /* Prevent text selection during dragging */
+        }
+
+        /* Infinite scrolling container */
+        #infinite-container {
+            width: 200vw; /* Double the viewport width */
+            height: 200vh; /* Double the viewport height */
+            background-image: url('https://www.transparenttextures.com/patterns/hexagons.png'); /* Replace with your preferred pattern */
+            background-repeat: repeat;
+            background-size: 200px 200px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            /* Initialize scroll position to center */
+            transform: translate(-50%, -50%);
+        }
+
+        /* Content inside the infinite container */
+        .content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            /* Style your content */
+            background: rgba(255, 255, 255, 0.8);
+            padding: 20px 30px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .content h1 {
+            margin-bottom: 10px;
+            font-size: 2em;
+            color: #333;
+        }
+
+        .content p {
+            font-size: 1.2em;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div id="infinite-container">
+        <div class="content">
+            <h1>Infinite Scrolling Area</h1>
+            <p>Drag anywhere with your mouse to pan around.</p>
+            <!-- Add more interactive or informational content as needed -->
+        </div>
+    </div>
+
+    <script>
+        const container = document.getElementById('infinite-container');
+
+        let isDragging = false;
+        let startX, startY;
+        let initialTranslateX = -50; // Initial translate values in percentages
+        let initialTranslateY = -50;
+        let currentTranslateX = initialTranslateX;
+        let currentTranslateY = initialTranslateY;
+        let lastMouseX, lastMouseY;
+
+        // Function to update the container's transform
+        function updateTransform() {
+            container.style.transform = `translate(${currentTranslateX}%, ${currentTranslateY}%)`;
+        }
+
+        // Mouse down event to start dragging
+        window.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            lastMouseX = e.clientX;
+            lastMouseY = e.clientY;
+            document.body.style.cursor = 'grabbing';
+        });
+
+        // Mouse up and leave events to stop dragging
+        window.addEventListener('mouseup', () => {
+            isDragging = false;
+            document.body.style.cursor = 'grab';
+        });
+
+        window.addEventListener('mouseleave', () => {
+            isDragging = false;
+            document.body.style.cursor = 'grab';
+        });
+
+        // Mouse move event to handle dragging
+        window.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+
+            const deltaX = e.clientX - lastMouseX;
+            const deltaY = e.clientY - lastMouseY;
+
+            // Update translation percentages based on mouse movement
+            // Adjust the divisor to control panning speed
+            currentTranslateX += (deltaX / window.innerWidth) * 100;
+            currentTranslateY += (deltaY / window.innerHeight) * 100;
+
+            // Wrap around logic for infinite scrolling
+            if (currentTranslateX > 50) currentTranslateX -= 100;
+            if (currentTranslateX < -50) currentTranslateX += 100;
+            if (currentTranslateY > 50) currentTranslateY -= 100;
+            if (currentTranslateY < -50) currentTranslateY += 100;
+
+            updateTransform();
+
+            lastMouseX = e.clientX;
+            lastMouseY = e.clientY;
+        });
+
+        // Touch events for mobile support
+        window.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 1) {
+                isDragging = true;
+                lastMouseX = e.touches[0].clientX;
+                lastMouseY = e.touches[0].clientY;
+                document.body.style.cursor = 'grabbing';
+            }
+        });
+
+        window.addEventListener('touchend', () => {
+            isDragging = false;
+            document.body.style.cursor = 'grab';
+        });
+
+        window.addEventListener('touchmove', (e) => {
+            if (!isDragging || e.touches.length !== 1) return;
+
+            const deltaX = e.touches[0].clientX - lastMouseX;
+            const deltaY = e.touches[0].clientY - lastMouseY;
+
+            // Update translation percentages based on touch movement
+            currentTranslateX += (deltaX / window.innerWidth) * 100;
+            currentTranslateY += (deltaY / window.innerHeight) * 100;
+
+            // Wrap around logic for infinite scrolling
+            if (currentTranslateX > 50) currentTranslateX -= 100;
+            if (currentTranslateX < -50) currentTranslateX += 100;
+            if (currentTranslateY > 50) currentTranslateY -= 100;
+            if (currentTranslateY < -50) currentTranslateY += 100;
+
+            updateTransform();
+
+            lastMouseX = e.touches[0].clientX;
+            lastMouseY = e.touches[0].clientY;
+        });
+
+        // Initialize the container's position
+        updateTransform();
+    </script>
+</body>
+</html>
